@@ -22,7 +22,16 @@ tide <- function(df, clip = TRUE) {
     stop("Input to argument 'df' must be a data.frame object.")
   }
 
+  if (!is.logical(clip)) {
+    stop("Input to argument 'clip' must be logical (TRUE or FALSE).")
+  }
+
   df_edited <- utils::edit(df)
+
+  if (all(df == df_edited) & all(names(df) == names(df_edited))) {
+    message("No changes were made.")
+    return(df_edited)
+  }
 
   changed <- (df == df_edited) & !is.na(df) & !is.na(df_edited)
 
