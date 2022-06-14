@@ -11,7 +11,7 @@ Turn the tide on `edit()` by making it reproducible.
 
 Adjust a data.frame manually with a spreadsheet-like data editor and have R code returned that reproduces the changes.
 
-This R package is just for fun with no guarantees. The idea [was prompted by a tweet](https://twitter.com/erdirstats/status/1518529179892994049).
+This R package is just for fun with no guarantees and tested only on macOS with R v4.2. The idea [was prompted by a tweet](https://twitter.com/erdirstats/status/1518529179892994049).
 
 ## Demo
 
