@@ -7,7 +7,8 @@
 tide(df, clip = TRUE)
 }
 \arguments{
-\item{df}{A data.frame to be edited.}
+\item{df}{A data.frame to be edited. Must be the name of the data.frame
+object only.}
 
 \item{clip}{Logical, defaults to TRUE. Copy generated code to the clipboard?}
 }
@@ -15,16 +16,16 @@ tide(df, clip = TRUE)
 A data.frame. Optionally adds a string to the clipboard.
 }
 \description{
-Calls the \code{\link{edit}} function to invoke a spreadsheet-like
+Calls the \link[utils]{edit} function to invoke a spreadsheet-like
 data-editor window where you can edit a data.frame object by hand. Returns
-the edited object, but also generates code that can can recreate the amended
-object from the original.
+the edited object and optionally adds code to the clipboard that can recreate
+the edited object from the original.
 }
 \details{
-As noted in \code{?dataentry}, 'the data entry editor is only
+As noted in \link[utils]{dataentry}, 'the data entry editor is only
 available on some platforms and GUIs' and 'The details of interface to
 the data grid may differ by platform and GUI'.
 }
 \examples{
-\dontrun{tide(head(beaver1))}
+\dontrun{tide(beaver1)}
 }
