@@ -6,7 +6,7 @@
 \alias{_PACKAGE}
 \title{tide: Manually Edit A Dataframe, Get Code to Reproduce It}
 \description{
-Adjust a data.frame manually with a spreadsheet-like data editor and have R code returned that reproduces the changes.
+Adjust a data.frame manually with R's inbuilt spreadsheet-like data editor and have simple base-R code returned that reproduces the changes.
 }
 \author{
 \strong{Maintainer}: Matt Dray \email{mwdray@gmail.com}

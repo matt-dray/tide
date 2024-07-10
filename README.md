@@ -4,16 +4,18 @@
 <!-- badges: start -->
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 [![Blog
-post](https://img.shields.io/badge/rostrum.blog-post-008900?labelColor=000000&logo=data%3Aimage%2Fgif%3Bbase64%2CR0lGODlhEAAQAPEAAAAAABWCBAAAAAAAACH5BAlkAAIAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAAQAAAC55QkISIiEoQQQgghRBBCiCAIgiAIgiAIQiAIgSAIgiAIQiAIgRAEQiAQBAQCgUAQEAQEgYAgIAgIBAKBQBAQCAKBQEAgCAgEAoFAIAgEBAKBIBAQCAQCgUAgEAgCgUBAICAgICAgIBAgEBAgEBAgEBAgECAgICAgECAQIBAQIBAgECAgICAgICAgECAQECAQICAgICAgICAgEBAgEBAgEBAgICAgICAgECAQIBAQIBAgECAgICAgIBAgECAQECAQIBAgICAgIBAgIBAgEBAgECAgECAgICAgICAgECAgECAgQIAAAQIKAAAh%2BQQJZAACACwAAAAAEAAQAAAC55QkIiESIoQQQgghhAhCBCEIgiAIgiAIQiAIgSAIgiAIQiAIgRAEQiAQBAQCgUAQEAQEgYAgIAgIBAKBQBAQCAKBQEAgCAgEAoFAIAgEBAKBIBAQCAQCgUAgEAgCgUBAICAgICAgIBAgEBAgEBAgEBAgECAgICAgECAQIBAQIBAgECAgICAgICAgECAQECAQICAgICAgICAgEBAgEBAgEBAgICAgICAgECAQIBAQIBAgECAgICAgIBAgECAQECAQIBAgICAgIBAgIBAgEBAgECAgECAgICAgICAgECAgECAgQIAAAQIKAAA7)](https://www.rostrum.blog/2022/04/27/tide/)
+post](https://img.shields.io/badge/rostrum.blog-post-008900?labelColor=000000&logo=data%3Aimage%2Fgif%3Bbase64%2CR0lGODlhEAAQAPEAAAAAABWCBAAAAAAAACH5BAlkAAIAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAAQAAAC55QkISIiEoQQQgghRBBCiCAIgiAIgiAIQiAIgSAIgiAIQiAIgRAEQiAQBAQCgUAQEAQEgYAgIAgIBAKBQBAQCAKBQEAgCAgEAoFAIAgEBAKBIBAQCAQCgUAgEAgCgUBAICAgICAgIBAgEBAgEBAgEBAgECAgICAgECAQIBAQIBAgECAgICAgICAgECAQECAQICAgICAgICAgEBAgEBAgEBAgICAgICAgECAQIBAQIBAgECAgICAgIBAgECAQECAQIBAgICAgIBAgIBAgEBAgECAgECAgICAgICAgECAgECAgQIAAAQIKAAAh%2BQQJZAACACwAAAAAEAAQAAAC55QkIiESIoQQQgghhAhCBCEIgiAIgiAIQiAIgSAIgiAIQiAIgRAEQiAQBAQCgUAQEAQEgYAgIAgIBAKBQBAQCAKBQEAgCAgEAoFAIAgEBAKBIBAQCAQCgUAgEAgCgUBAICAgICAgIBAgEBAgEBAgEBAgECAgICAgECAQIBAQIBAgECAgICAgICAgECAQECAQICAgICAgICAgEBAgEBAgEBAgICAgICAgECAQIBAQIBAgECAgICAgIBAgECAQECAQIBAgICAgIBAgIBAgEBAgECAgECAgICAgICAgECAgECAgQIAAAQIKAAA7)](https://www.rostrum.blog/posts/2022-04-27-tide/)
 <!-- badges: end -->
 
-Turn the tide on `edit()` by making it reproducible.
+## About
 
-Adjust a data.frame manually with a spreadsheet-like data editor and have R code returned that reproduces the changes.
+Turn the tide on R's `edit()` function by making it reproducible.
 
-This R package is just for fun with no guarantees and tested only on macOS with R v4.2. The idea [was prompted by a tweet](https://twitter.com/erdirstats/status/1518529179892994049).
+Adjust a data.frame manually with R's built-in spreadsheet-like data editor and have R code returned that reproduces the changes.
 
-## Demo
+This R package is a limited concept with no guarantees. The idea [was prompted by a tweet](https://twitter.com/erdirstats/status/1518529179892994049). You can [read a blogpost](https://www.rostrum.blog/posts/2022-04-27-tide/) about its development.
+
+## Install
 
 Install from GitHub using the {remotes} package:
 
@@ -21,15 +23,17 @@ Install from GitHub using the {remotes} package:
 remotes::install_github("matt-dray/tide")
 ```
 
-Let's say we have a demo dataframe:
+## Demo
+
+Let's say we have a demo data.frame:
 
 ``` r
-df <- data.frame(
+dat <- data.frame(
   x = c("A", "B", "D"),
   y = c(1, NA, 3)
 )
 
-df
+dat
 #   x  y
 # 1 A  1
 # 2 B NA
@@ -43,10 +47,10 @@ The {tide} package's only function, `tide()`, seeks to improve this by generatin
 Pass the data.frame to `tide()` and change the value `"D"` to a `"C"` and the `NA` to a `2` in the data-editor window.
 
 ``` r
-new_df <- tide::tide(old_df)
+new_dat <- tide::tide(dat)
 # Wrote code to the clipboard
 
-new_df
+new_dat
 #   x y
 # 1 A 1
 # 2 B 2
@@ -56,8 +60,8 @@ new_df
 The amended data.frame is returned with a message: some R code has been copied to the clipboard that allows you to reproduce the changes. So if you now paste from the clipboard:
 
 ``` r
-# df[3, 1] <- "C"
-# df[2, 2] <- 2
+# dat[3, 1] <- "C"
+# dat[2, 2] <- 2
 ```
 
 Currently, `tide()` only works if you change existing data values (cells). I hope to update it to handle column name changes, along with the creation of new columns and rows.
