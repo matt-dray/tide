@@ -31,63 +31,72 @@ tide <- function(dat, copy_to_clipboard = TRUE) {
     )
   }
   
+  dat_copy <- dat  # keep original and make a copy to edit
   dat_edited <- utils::edit(dat)
   
   # Factors need to be handled differently to other column types
   is_factor <- sapply(dat, is.factor)
   has_factors <- any(is_factor)
+  factor_cols <- names(dat[is_factor])  # length 0 if none
   
   # Convert factors to character to allow '==' comparison
   if (has_factors) {
     
-    factor_cols <- names(dat[is_factor])
-    
-    dat[factor_cols] <- lapply(
-      dat[factor_cols],
-      function(x) type.convert(x, as.is = TRUE)
+    dat_copy[factor_cols] <- lapply(
+      dat_copy[factor_cols],
+      function(x) utils::type.convert(x, as.is = TRUE)
     )
     
     dat_edited[factor_cols] <- lapply(
       dat_edited[factor_cols],
-      function(x) type.convert(x, as.is = TRUE)
+      function(x) utils::type.convert(x, as.is = TRUE)
     )
     
   }
   
-  if (all(dat == dat_edited) & all(names(dat) == names(dat_edited))) {
-    message("No edits were detected.")
+  if (all(dat_copy == dat_edited) & all(names(dat_copy) == names(dat_edited))) {
+    message("No edits were detected. Returning original `dat` data.frame.")
     return(dat)
   }
   
-  changed <- (dat == dat_edited) & !is.na(dat) & !is.na(dat_edited)
+  changed <- (dat_copy == dat_edited) & !is.na(dat_copy) & !is.na(dat_edited)
   
   # Generate code snippets to reproduce each cell edit
-  
-  if (!has_factors) snippets <- build_code_snippets(dat, dat_edited, changed)
+  snippets <- build_snippets(dat, dat_copy, dat_edited, changed)
   
   if (has_factors) {
-    
-    # Handle factor/non-factor columns separately 
-    
-    factor_column_lgl <- dimnames(changed)[[2]] %in% factor_cols
-    
-    changed_factors <- changed[, which(factor_column_lgl), drop = FALSE]
-    snippets_factors <- build_code_snippets(dat, dat_edited, changed_factors)
-    
-    changed_nonfactors <- changed[, which(!factor_column_lgl), drop = FALSE]
-    snippets_nonfactors <- build_code_snippets(dat, dat_edited, changed_nonfactors)
-    
-    snippets <- c(snippets_nonfactors, snippets_factors)
-    
-    # Also coerce the edited-data.frame columns back to factors
+
+    # Coerce the edited-data.frame columns back to factors
     dat_edited[factor_cols] <- lapply(dat_edited[factor_cols], as.factor)
+
+    # Match edit()'s behaviour: original levels plus new ones appended
+    
+    dat_levels <- lapply(dat[factor_cols], levels)
+    dat_edited_levels <- lapply(
+      dat_edited[factor_cols],
+      function(x) as.character(unlist(x))
+    )
+    
+    new_levels_set <- vector("list", length = length(dat_levels))
+    new_levels_set <- stats::setNames(new_levels_set, names(dat_levels))
+    
+    for (var in names(dat_levels)) {
+      new_levels <- setdiff(dat_edited_levels[[var]], dat_levels[[var]])
+      new_levels <- if (length(new_levels) == 0) NULL else new_levels
+      new_levels_set[[var]] <- new_levels
+    }
+    
+    for (var in names(dat_levels)) {
+      updated_levels <- c(as.character(dat[[var]]), new_levels_set[[var]])
+      levels(dat_edited[[var]]) <- updated_levels
+    }
     
   } 
   
   if (copy_to_clipboard) {
     code_block <- paste(snippets, collapse = "\n")
     clipr::write_clip(code_block)
-    message("Wrote code to clipboard")
+    message("Wrote reproducible code snippets to the clipboard.")
   }
   
   dat_edited
@@ -100,29 +109,44 @@ tide <- function(dat, copy_to_clipboard = TRUE) {
 #'     edited.
 #' @return A character vector of equal length to the number of edited cells.
 #' @noRd
-build_code_snippets <- function(dat, dat_edited, changed) {
+build_snippets <- function(dat, dat_copy, dat_edited, changed) {
   
   changed_index <- which(!changed, arr.ind = TRUE)
-  changed_nrow <- nrow(changed_index)
+  changed_n <- nrow(changed_index)
   
-  snippets <- vector(length = changed_nrow)
+  snippets <- c()  # TODO: preallocate (changed_n + 1 for every factor change)
   
-  for (i in seq(changed_nrow)) {
+  for (i in seq(changed_n)) {
     
     new_value <- dat_edited[changed_index[i, "row"], changed_index[i, "col"]]
+    if (is.character(new_value)) new_value <- paste0('"', new_value, '"')
     
-    if (!is.numeric(new_value)) {
-      new_value <- paste0('"', new_value, '"')
+    dat_name <- as.list(match.call())[["dat"]]  # name of the input data.frame
+    row_index <- changed_index[i, "row"]
+    col_index <- changed_index[i, "col"]
+    df_index <- paste0(dat_name, "[, ", col_index, "]")
+    
+    # If the original column is factor, need snippet to add factor level
+    # TODO: don't need a snippet if the level already exists
+    if (is.factor(dat[, col_index])) {
+      
+      # Factor levels must be character
+      if (is.numeric(new_value)) new_value <- paste0('"', new_value, '"')
+      
+      code_string <- paste0(
+        "levels(", df_index, ") <- ",
+        "c(levels(", df_index, "), ", new_value, ")"
+      )
+      
+      snippets <- c(snippets, code_string)
+      
     }
     
     code_string <- paste0(
-      as.list(match.call())[["dat"]],  # get the name of the input data.frame
-      "[", changed_index[i, "row"], ", ",
-      changed_index[i, "col"], "]",
-      " <- ", new_value
+      dat_name, "[", row_index, ", ", col_index, "] <- ", new_value
     )
     
-    snippets[i] <- code_string
+    snippets <- c(snippets, code_string)
     
   }
   
