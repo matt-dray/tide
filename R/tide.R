@@ -7,32 +7,28 @@
 #'
 #' @param dat A data.frame to be edited. Must be the name of the data.frame
 #'     object only.
-#' @param copy_to_clipboard Logical, defaults to TRUE. Copy generated code to
+#' @param copy_to_clipboard Logical, defaults to `TRUE`. Copy generated code to
 #'     the clipboard?
+#' @param write_path Character. A file path to save an R script containing the
+#'    generated code snippets. The directory containing the file must exist.
 #'
 #' @details As noted in \link[utils]{dataentry}, 'the data entry editor is only
 #'     available on some platforms and GUIs' and 'The details of interface to
 #'     the data grid may differ by platform and GUI'.
 #'
-#' @return A data.frame. Optionally adds a string to the clipboard.
+#' @return A data.frame. Optionally adds a string to the clipboard and/or writes
+#'     to a file.
+#' 
 #' @export
 #'
 #' @examples \dontrun{beaver1_edited <- tide(beaver1)}
-tide <- function(dat, copy_to_clipboard = TRUE) {
+tide <- function(dat, copy_to_clipboard = TRUE, write_path = NULL) {
   
-  if (!"data.frame" %in% class(dat)) {
-    stop("Input to argument 'dat' must be a data.frame object.", call. = FALSE)
-  }
-  
-  if (!is.logical(copy_to_clipboard)) {
-    stop(
-      "Input to argument 'copy_to_clipboard' must be logical (TRUE or FALSE).",
-      call. = FALSE
-    )
-  }
+  check_inputs(dat, copy_to_clipboard, write_path)
   
   dat_copy <- dat  # keep original and make a copy to edit
   dat_edited <- utils::edit(dat)
+  dat_edited_copy <- dat_edited
   
   # Factors need to be handled differently to other column types
   is_factor <- sapply(dat, is.factor)
@@ -65,10 +61,10 @@ tide <- function(dat, copy_to_clipboard = TRUE) {
   snippets <- build_snippets(dat, dat_copy, dat_edited, changed)
   
   if (has_factors) {
-
+    
     # Coerce the edited-data.frame columns back to factors
     dat_edited[factor_cols] <- lapply(dat_edited[factor_cols], as.factor)
-
+    
     # Match edit()'s behaviour: original levels plus new ones appended
     
     dat_levels <- lapply(dat[factor_cols], levels)
@@ -93,13 +89,69 @@ tide <- function(dat, copy_to_clipboard = TRUE) {
     
   } 
   
+  # Return code snippets
+  
+  code_block <- paste(snippets, collapse = "\n")
+  
   if (copy_to_clipboard) {
-    code_block <- paste(snippets, collapse = "\n")
     clipr::write_clip(code_block)
     message("Wrote reproducible code snippets to the clipboard.")
   }
   
-  dat_edited
+  if (!is.null(write_path)) {
+    writeLines(code_block, write_path)
+    message("Wrote reproducible code snippets to ", write_path)
+  }
+  
+  dat_edited_copy
+  
+}
+
+#' Check Argument Inputs
+#' @param dat A data.frame to be edited. Must be the name of the data.frame
+#'     object only.
+#' @param copy_to_clipboard Logical, defaults to `TRUE``. Copy generated code to
+#'     the clipboard?
+#' @param write_path Character. A file path to save an R script containing the
+#'     code. The directory containing the file must exist.
+#' @noRd
+check_inputs <- function(dat, copy_to_clipboard, write_path) {
+  
+  if (!"data.frame" %in% class(dat)) {
+    stop("Argument 'dat' must be a data.frame object.", call. = FALSE)
+  }
+  
+  if (!is.logical(copy_to_clipboard)) {
+    stop(
+      "Argument 'copy_to_clipboard' must be logical (TRUE or FALSE).",
+      call. = FALSE
+    )
+  }
+  
+  if (!is.null(write_path)) {
+    
+    if (!is.character(write_path) || length(write_path) != 1) {
+      stop(
+        "Argument 'write_path' must be a single character string.",
+        call. = FALSE
+      )
+    }
+    
+    if (!dir.exists(dirname(write_path))) {
+      stop(
+        "Argument 'write_path' must be a path to a folder that exists.",
+        call. = FALSE
+      )
+    }
+    
+    if (tools::file_ext(write_path) != "R") {
+      stop(
+        "Argument 'write_path' must be a path to an R script with extension '.R'.",
+        call. = FALSE
+      )
+    }
+    
+  }
   
 }
 

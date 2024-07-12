@@ -4,17 +4,21 @@
 \alias{tide}
 \title{Edit Manually A Dataframe And Generate Reproducible Code}
 \usage{
-tide(dat, copy_to_clipboard = TRUE)
+tide(dat, copy_to_clipboard = TRUE, write_path = NULL)
 }
 \arguments{
 \item{dat}{A data.frame to be edited. Must be the name of the data.frame
 object only.}
 
-\item{copy_to_clipboard}{Logical, defaults to TRUE. Copy generated code to
+\item{copy_to_clipboard}{Logical, defaults to \code{TRUE}. Copy generated code to
 the clipboard?}
+
+\item{write_path}{Character. A file path to save an R script containing the
+generated code snippets. The directory containing the file must exist.}
 }
 \value{
-A data.frame. Optionally adds a string to the clipboard.
+A data.frame. Optionally adds a string to the clipboard and/or writes
+to a file.
 }
 \description{
 Calls the \link[utils]{edit} function to invoke a spreadsheet-like
