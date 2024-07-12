@@ -1,13 +1,15 @@
 Package: tide
 Title: Manually Edit A Dataframe, Get Code to Reproduce It
-Version: 0.0.0.9000
-Authors@R: person("Matt", "Dray", , "mwdray@gmail.com", role = c("aut", "cre"))
-Description: Adjust a data.frame manually with a spreadsheet-like data editor
-    and have R code returned that reproduces the changes.
+Version: 0.1.0
+Authors@R: 
+    person("Matt", "Dray", , "mwdray@gmail.com", role = c("aut", "cre"))
+Description: Adjust a data.frame manually with R's inbuilt spreadsheet-like data
+    editor and have simple base-R code returned that reproduces the
+    changes.
 License: MIT + file LICENSE
+Imports: 
+    clipr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
-Imports: 
-    clipr
+RoxygenNote: 7.3.1.9000

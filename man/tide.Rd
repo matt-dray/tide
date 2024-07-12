@@ -4,27 +4,33 @@
 \alias{tide}
 \title{Edit Manually A Dataframe And Generate Reproducible Code}
 \usage{
-tide(df, clip = TRUE)
+tide(dat, copy_to_clipboard = TRUE, write_path = NULL)
 }
 \arguments{
-\item{df}{A data.frame to be edited.}
+\item{dat}{A data.frame to be edited. Must be the name of the data.frame
+object only.}
 
-\item{clip}{Logical, defaults to TRUE. Copy generated code to the clipboard?}
+\item{copy_to_clipboard}{Logical, defaults to \code{TRUE}. Copy generated code to
+the clipboard?}
+
+\item{write_path}{Character. A file path to save an R script containing the
+generated code snippets. The directory containing the file must exist.}
 }
 \value{
-A data.frame. Optionally adds a string to the clipboard.
+A data.frame. Optionally adds a string to the clipboard and/or writes
+to a file.
 }
 \description{
-Calls the \code{\link{edit}} function to invoke a spreadsheet-like
-data-editor window where you can edit a data.frame object by hand. Returns
-the edited object, but also generates code that can can recreate the amended
-object from the original.
+Calls the \link[utils]{edit} function to invoke a spreadsheet-like
+data-editor window where you can edit a data.frame object 'by hand'. Returns
+the edited object and optionally adds code to the clipboard that can recreate
+the edited object from the original.
 }
 \details{
-As noted in \code{?dataentry}, 'the data entry editor is only
+As noted in \link[utils]{dataentry}, 'the data entry editor is only
 available on some platforms and GUIs' and 'The details of interface to
 the data grid may differ by platform and GUI'.
 }
 \examples{
-\dontrun{tide(head(beaver1))}
+\dontrun{beaver1_edited <- tide(beaver1)}
 }
